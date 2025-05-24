@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rail Fence Cipher</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, #1f4037, #99f2c8);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      background-color: #2e8b57;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      flex-wrap: wrap;
+    }
+
+    nav .nav-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+
+    nav .nav-links a:hover {
+      color: #e0e0e0;
+    }
+
+    .container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .cipher-card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 600px;
+    }
+
+    h1 {
+      color: #2e8b57;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 15px;
+      display: block;
+    }
+
+    textarea, input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      margin-right: 10px;
+      background-color: #4CAF50;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #result {
+      background-color: #f0f0f0;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 10px;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">CRVV Cipher Solution</div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="cipher-card">
+      <h1>Rail Fence Cipher</h1>
+      <label for="message">Enter your message:</label>
+      <textarea id="message" rows="4" placeholder="Type your message here..."></textarea>
+
+      <label for="rails">Number of Rails:</label>
+      <input type="number" id="rails" value="3" min="2" max="10"/>
+
+      <div>
+        <button onclick="encrypt()">Encrypt</button>
+        <button onclick="decrypt()">Decrypt</button>
+      </div>
+
+      <h3 style="margin-top: 20px;">Result:</h3>
+      <div id="result"></div>
+    </div>
+  </div>
+
+  <script>
+    function encryptRailFence(text, rails) {
+      let rail = Array.from({ length: rails }, () => []);
+      let dirDown = false, row = 0;
+
+      for (let i = 0; i < text.length; i++) {
+        rail[row].push(text[i]);
+        if (row === 0 || row === rails - 1) dirDown = !dirDown;
+        row += dirDown ? 1 : -1;
+      }
+
+      return rail.flat().join('');
+    }
+
+    function decryptRailFence(cipher, rails) {
+      let len = cipher.length;
+      let rail = Array.from({ length: rails }, () => Array(len).fill('\n'));
+      let dirDown, row = 0, col = 0;
+
+      for (let i = 0; i < len; i++) {
+        if (row === 0) dirDown = true;
+        if (row === rails - 1) dirDown = false;
+        rail[row][col++] = '*';
+        row += dirDown ? 1 : -1;
+      }
+
+      let index = 0;
+      for (let i = 0; i < rails; i++)
+        for (let j = 0; j < len; j++)
+          if (rail[i][j] === '*' && index < len)
+            rail[i][j] = cipher[index++];
+
+      let result = '';
+      row = 0; col = 0;
+      for (let i = 0; i < len; i++) {
+        if (row === 0) dirDown = true;
+        if (row === rails - 1) dirDown = false;
+        if (rail[row][col] !== '\n') result += rail[row][col++];
+        row += dirDown ? 1 : -1;
+      }
+
+      return result;
+    }
+
+    function encrypt() {
+      const msg = document.getElementById('message').value;
+      const rails = parseInt(document.getElementById('rails').value);
+      document.getElementById('result').innerText = encryptRailFence(msg, rails);
+    }
+
+    function decrypt() {
+      const msg = document.getElementById('message').value;
+      const rails = parseInt(document.getElementById('rails').value);
+      document.getElementById('result').innerText = decryptRailFence(msg, rails);
+    }
+  </script>
+</body>
+</html>
